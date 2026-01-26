@@ -1,0 +1,6 @@
+[submodule "native/hyprlangwrap/vendor/hyprutils"]
+	path = native/hyprlangwrap/vendor/hyprutils
+	url = https://github.com/hyprwm/hyprutils.git
+[submodule "native/hyprlangwrap/vendor/hyprlang"]
+	path = native/hyprlangwrap/vendor/hyprlang
+	url = https://github.com/hyprwm/hyprlang.git

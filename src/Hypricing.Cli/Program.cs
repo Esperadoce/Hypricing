@@ -1,5 +1,5 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
+using Hyprland.Configuration;
 using Hyprland.Configuration.IO;
 
 namespace Hypricing.Cli
@@ -26,43 +26,52 @@ namespace Hypricing.Cli
 
             var inputPath = GetInputPath(args);
             var outputPath = GetOutputPath();
-            var file = HyprFile.Load(inputPath);
-            file.Save(outputPath);
-            return 0;
+
+            try
+            {
+                var loader = new HyprConfigLoader();
+
+                // Async from sync Main:
+                var merged = loader.LoadMergedAsync(inputPath).GetAwaiter().GetResult();
+
+                File.WriteAllText(outputPath, merged.Text);
+
+                Console.WriteLine($"Input : {inputPath}");
+                Console.WriteLine($"Output: {outputPath}");
+                Console.WriteLine($"Lines : {merged.Text.Length}");
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"error: {ex.Message}");
+                return 1;
+            }
+        }
+
+        private static string GetDefaultHyprDir()
+        {
+            var home = Environment.GetEnvironmentVariable("HOME");
+            if (string.IsNullOrWhiteSpace(home))
+                home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            return Path.Combine(home, ".config", "hypr");
         }
 
         private static string GetInputPath(string[] args)
         {
             if (args.Length >= 2 && args[0] == "--path")
-            {
                 return args[1];
-            }
 
             if (args.Length >= 1 && args[0] is not "-h" and not "--help" and not "-v" and not "--version")
-            {
                 return args[0];
-            }
 
-            var home = Environment.GetEnvironmentVariable("HOME");
-            if (!string.IsNullOrWhiteSpace(home))
-            {
-                return Path.Combine(home, ".config", "hypr", "hyprland.conf");
-            }
-
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(userProfile, ".config", "hypr", "hyprland.conf");
+            return Path.Combine(GetDefaultHyprDir(), "hyprland.conf");
         }
 
         private static string GetOutputPath()
         {
-            var home = Environment.GetEnvironmentVariable("HOME");
-            if (!string.IsNullOrWhiteSpace(home))
-            {
-                return Path.Combine(home, ".config", "hypr", "hyprland.test.conf");
-            }
-
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(userProfile, ".config", "hypr", "hyprland.test.conf");
+            return Path.Combine(GetDefaultHyprDir(), "hyprland.test.conf");
         }
 
         private static void PrintHelp()

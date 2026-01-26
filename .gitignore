@@ -1,4 +1,20 @@
+# .NET
 **/bin/
 **/obj/
+
+#Editor directories and files
+.vscode/
 .idea/
 *.DotSettings.user
+
+# CMake
+native/**/build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Linux artifacts
+*.so
+*.a
+*.o
