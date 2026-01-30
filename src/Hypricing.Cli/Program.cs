@@ -51,7 +51,7 @@ namespace Hypricing.Cli
                         Console.WriteLine($"{diag.Message}");
                     }
                 }
-                
+
 
                 return 0;
             }

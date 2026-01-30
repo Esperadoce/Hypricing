@@ -25,4 +25,5 @@ coverage/
 
 
 # Continue.dev / AI tooling
+.continue/
 .continueignore
