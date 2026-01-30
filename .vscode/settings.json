@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        "**/obj": true,
+        "**/bin": false,
+    },
+    "dotnet.server.useOmnisharp": false,
+    "csharp.format.enable": true,
+    "editor.formatOnSave": true,
+}

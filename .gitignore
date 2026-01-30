@@ -2,19 +2,27 @@
 **/bin/
 **/obj/
 
-#Editor directories and files
-.vscode/
+# VS Code / IDE
+.vscode/*.code-workspace
 .idea/
 *.DotSettings.user
 
-# CMake
+# CMake / native builds
 native/**/build/
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
 
-# Linux artifacts
+# Linux / native artifacts
 *.so
 *.a
 *.o
+
+
+TestResults/
+coverage/
+
+
+# Continue.dev / AI tooling
+.continueignore

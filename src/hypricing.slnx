@@ -2,4 +2,5 @@
   <Project Path="Hypricing.Cli/Hypricing.Cli.csproj" />
   <Project Path="Hypricing.Core/Hypricing.Core.csproj" />
   <Project Path="Hyprland.Configuration/Hyprland.Configuration.csproj" />
+  <Project Path="Hypricing.View/Hypricing.View.csproj" />
 </Solution>
