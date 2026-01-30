@@ -40,6 +40,19 @@ namespace Hypricing.Cli
                 Console.WriteLine($"Output: {outputPath}");
                 Console.WriteLine($"Lines : {merged.Text.Length}");
 
+                var validator = new HyprlangValidationService();
+                var diagnostics = validator.Validate(merged.Text);
+                if (diagnostics.Any())
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Diagnostics:");
+                    foreach (var diag in diagnostics)
+                    {
+                        Console.WriteLine($"{diag.Message}");
+                    }
+                }
+                
+
                 return 0;
             }
             catch (Exception ex)

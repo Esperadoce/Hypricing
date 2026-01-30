@@ -8,12 +8,59 @@
     <Version>0.0.1</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsPublishing)'=='true'">
+    <PublishAot>true</PublishAot>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SelfContained>true</SelfContained>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+
+
   <ItemGroup>
     <ProjectReference Include="..\Hyprland.Configuration\Hyprland.Configuration.csproj" />
   </ItemGroup>
-  <Target Name="CopyHyprlangWrapSo" AfterTargets="Build">
-    <Copy SourceFiles="$(ProjectDir)..\..\native\hyprlangwrap\build\libhyprlangwrap.so"
+
+  <PropertyGroup>
+    <NativeSrc>$(MSBuildProjectDirectory)/../../native/hyprlangwrap</NativeSrc>
+    <NativeBuildDir>$(BaseIntermediateOutputPath)native/hyprlangwrap/$(Configuration)</NativeBuildDir>
+
+    <!-- Where the .so is produced by CMake -->
+    <NativeSo>$(NativeBuildDir)/libhyprlangwrap.so</NativeSo>
+  </PropertyGroup>
+
+  <!-- Build native lib for normal build -->
+  <Target Name="BuildHyprlangWrap"
+          BeforeTargets="Build"
+          Condition="'$(IsPublishing)'!='true'">
+
+    <MakeDir Directories="$(NativeBuildDir)" />
+    <Exec Command="cmake -S &quot;$(NativeSrc)&quot; -B &quot;$(NativeBuildDir)&quot; -DCMAKE_BUILD_TYPE=$(Configuration)" />
+    <Exec Command="cmake --build &quot;$(NativeBuildDir)&quot; -j" />
+
+    <!-- Copy to build output (bin/...) -->
+    <Copy SourceFiles="$(NativeSo)"
           DestinationFolder="$(TargetDir)"
           SkipUnchangedFiles="true" />
   </Target>
+
+  <!-- Build native lib for publish -->
+  <Target Name="BuildHyprlangWrapPublish"
+          BeforeTargets="PrepareForPublish"
+          Condition="'$(IsPublishing)'=='true'">
+
+    <MakeDir Directories="$(NativeBuildDir)" />
+    <Exec Command="cmake -S &quot;$(NativeSrc)&quot; -B &quot;$(NativeBuildDir)&quot; -DCMAKE_BUILD_TYPE=$(Configuration)" />
+    <Exec Command="cmake --build &quot;$(NativeBuildDir)&quot; -j" />
+
+    <!-- Copy to publish output -->
+    <Copy SourceFiles="$(NativeSo)"
+          DestinationFolder="$(PublishDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

@@ -1,24 +1,26 @@
 #pragma once
-#include <stddef.h>
+#include <stdint.h>
+
+#define HYPRWRAP_API __attribute__((visibility("default")))
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-    typedef void* hypr_handle_t;
+    typedef struct parse_result_t
+    {
+        uint8_t error;
+        const char *message;
+        uint32_t message_len;
+    } parse_result_t;
 
-    typedef struct hypr_result_t {
-        int ok;            // 1 success, 0 fail
-        const char* error; // nullable; free with hypr_free_string
-    } hypr_result_t;
+    typedef void (*parse_cb_t)(const parse_result_t *r, void *user_data);
 
-    hypr_handle_t hypr_config_parse_text(const char* utf8_text, hypr_result_t* out);
-    hypr_handle_t hypr_config_parse_file(const char* utf8_path, hypr_result_t* out);
-
-    const char* hypr_config_get_diagnostics_json(hypr_handle_t h);
-
-    void hypr_config_destroy(hypr_handle_t h);
-    void hypr_free_string(const char* s);
+    HYPRWRAP_API void hypr_config_parse_text(
+        const char *utf8_text,
+        parse_cb_t cb,
+        void *user_data);
 
 #ifdef __cplusplus
 }

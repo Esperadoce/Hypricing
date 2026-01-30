@@ -1,76 +1,32 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Hyprland.Configuration.Native;
 
 namespace Hyprland.Configuration;
 
 public sealed class HyprlangValidationService
 {
-    public sealed record Diagnostic(string Message);
+    public sealed record Diagnostic([property: JsonPropertyName("message")] string Message);
 
     public Diagnostic[] Validate(string configText)
     {
-        IntPtr handle = HyprlangNative.HyprConfigParseText(configText, out var result);
-
-        try
+        HyprlangWrapper.ParseText(configText);
+        var context = HyprlangWrapper.CurrentParseContext;
+        if (context.IsError)
         {
-            IntPtr diagPtr = HyprlangNative.HyprConfigGetDiagnosticsJson(handle);
-            string? json = HyprlangNative.PtrToUtf8AndFree(diagPtr);
-
-            if (string.IsNullOrWhiteSpace(json))
-                return Array.Empty<Diagnostic>();
-
-            // JSON shape: [{ "message": "..." }]
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.ValueKind != JsonValueKind.Array)
-                return [new Diagnostic("Invalid diagnostics JSON from hyprlangwrap")];
-
-            var list = new System.Collections.Generic.List<Diagnostic>();
-            foreach (var item in doc.RootElement.EnumerateArray())
+            try
             {
-                if (item.TryGetProperty("message", out var msg))
-                    list.Add(new Diagnostic(msg.GetString() ?? ""));
+                var diagnostics = JsonSerializer.Deserialize<Diagnostic[]>(context.Message);
+                if (diagnostics != null)
+                {
+                    return diagnostics;
+                }
             }
-
-            return list.ToArray();
-        }
-        finally
-        {
-            // Free error string if present
-            HyprlangNative.PtrToUtf8AndFree(result.Error);
-            HyprlangNative.HyprConfigDestroy(handle);
-        }
-    }
-
-    public Diagnostic[] ValidateFile(string filePath)
-    {
-        IntPtr handle = HyprlangNative.HyprConfigParseFile(filePath, out var result);
-
-        try
-        {
-            IntPtr diagPtr = HyprlangNative.HyprConfigGetDiagnosticsJson(handle);
-            string? json = HyprlangNative.PtrToUtf8AndFree(diagPtr);
-
-            if (string.IsNullOrWhiteSpace(json))
-                return Array.Empty<Diagnostic>();
-
-            // JSON shape: [{ "message": "..." }]
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.ValueKind != JsonValueKind.Array)
-                return [new Diagnostic("Invalid diagnostics JSON from hyprlangwrap")];
-
-            var list = new System.Collections.Generic.List<Diagnostic>();
-            foreach (var item in doc.RootElement.EnumerateArray())
+            catch (JsonException)
             {
-                if (item.TryGetProperty("message", out var msg))
-                    list.Add(new Diagnostic(msg.GetString() ?? ""));
+                // Ignore JSON deserialization errors
             }
-
-            return list.ToArray();
-        }
-        finally
-        {
-            // Free error string if present
-            HyprlangNative.PtrToUtf8AndFree(result.Error);
-            HyprlangNative.HyprConfigDestroy(handle);
-        }
+        }   
+        return []; 
     }
 }
