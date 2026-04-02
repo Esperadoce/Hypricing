@@ -89,8 +89,13 @@ string result = HyprlangWriter.Write(config);
 
 - Any content not recognized by the parser becomes a `RawNode` and is written back verbatim.
   No data is ever lost.
-- Round-trip guarantee: `Write(Parse(text)) == text` for unmodified ASTs.
+- Round-trip guarantee: `Write(Parse(text)) == text` for unmodified ASTs. This holds because
+  the writer uses the original input ranges for unmodified nodes — it does not reconstruct
+  text from key/value fields, which would risk normalizing whitespace and breaking equality.
 - The library performs no file I/O. The caller is responsible for reading and writing files.
+- The original input string must remain alive for the lifetime of the AST. `RawNode` and
+  unmodified nodes store `Range` references into the original buffer — they do not copy
+  their content.
 
 ### Implementation
 
@@ -152,6 +157,20 @@ Hypricing.Core/
 6. Verify that managed `source=` lines are present in `hyprland.conf` and offer to repair
    them if missing
 
+#### Monitor source of truth
+
+Monitor configuration exists in two places:
+
+| Source | What it represents |
+|---|---|
+| `monitor=` lines in `hyprland.conf` | What the user has *configured* |
+| `hyprctl monitors -j` | What is *currently connected* at runtime |
+
+The display UI uses **both**. `hyprctl monitors -j` provides the list of physically
+connected monitors and their current state. The config provides the stored layout.
+When a monitor present in the config is not connected at runtime, the UI must handle
+this gracefully (e.g. show it as inactive/disconnected).
+
 ### Semantic Layer
 
 The parser only deals with structure — it stores all values as raw strings. The
@@ -164,7 +183,7 @@ public record OptionDefinition(
     string Section,
     string Key,
     OptionType Type,
-    object? Default,
+    string? Default,   // stored as string — same representation as the parser uses
     string Description
 );
 
@@ -172,28 +191,41 @@ public enum OptionType
 {
     Int,
     Float,
-    Bool,
+    Bool,        // accepts: true/false/yes/no/on/off/0/1
     Color,
     String,
-    Vec2,
+    Vec2,        // two floats separated by a space, e.g. "0 0"
+    Gradient,    // color color ... [angle], e.g. "rgba(ff0000ee) rgba(00ff00ee) 45deg"
+    Mod,         // modifier string, e.g. "SUPER" or "SUPER + SHIFT"
+    FontWeight,  // int 100–1000 or named preset: thin, bold, heavy, etc.
     MonitorParams,
 }
 ```
 
+`Default` is stored as a `string` — the same raw representation the parser uses —
+avoiding boxing of value types and keeping the design AOT-safe.
+
 The registry is built once at startup as a `Dictionary<string, OptionDefinition>`,
-keyed by `"section.key"`. Lookups are O(1) and AOT-safe — no reflection involved.
+keyed by `"section.key"` for section options and `"keyword"` for top-level keywords
+(e.g. `"monitor"`, `"env"`, `"bind"`). Lookups are O(1) and AOT-safe.
 
 ```csharp
-// lookup
-var def = _registry["general.gaps_in"]; // → OptionType.Int
+// section option
+var def = _registry["general.gaps_in"];  // → OptionType.Int
+
+// top-level keyword
+var def = _registry["monitor"];          // → OptionType.MonitorParams
 
 // UI maps type to widget
-// Int    → slider or number input
-// Float  → slider with decimals
-// Bool   → toggle
-// Color  → color picker
-// String → text input
-// Vec2   → two number inputs
+// Int         → slider or number input
+// Float       → slider with decimals
+// Bool        → toggle  (0/1 and word forms all valid)
+// Color       → color picker
+// String      → text input
+// Vec2        → two number inputs
+// Gradient    → multi-stop color editor
+// Mod         → modifier key selector
+// FontWeight  → dropdown or number input
 // MonitorParams → drag canvas
 ```
 

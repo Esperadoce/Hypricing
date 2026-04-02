@@ -76,6 +76,29 @@ private ConfigNode ParseLine() => currentToken switch
 
 All node types are `sealed` to enable JIT devirtualization.
 
+### AssignmentNode vs KeywordNode
+
+The parser distinguishes assignments from keywords by the presence of **top-level commas**
+in the value — commas not enclosed in parentheses:
+
+```
+gaps_in = 5                          → AssignmentNode  (no commas)
+col.active_border = rgba(...) 45deg  → AssignmentNode  (no top-level commas)
+monitor = DP-1,1920x1080@144,0x0,1  → KeywordNode     (top-level commas)
+env = XCURSOR_SIZE,24                → KeywordNode     (top-level comma)
+bind = SUPER,Q,killactive            → KeywordNode     (top-level commas)
+```
+
+The lexer must track parenthesis depth when scanning the value to correctly identify
+top-level commas. Commas inside `rgba(...)` or `rgb(...)` do not trigger keyword detection.
+
+### Memory Model
+
+The original input string must remain alive for the lifetime of the AST. `RawNode` and
+unmodified nodes store `Range` values referencing positions in the original input buffer —
+they do not copy their content. The writer resolves these ranges back to text via
+`originalInput.AsSpan(range)`.
+
 ### Key Principle
 
 > **What is not understood is preserved verbatim.**
@@ -267,6 +290,7 @@ The parser stores all values as **raw strings**. It does not interpret them.
 ```
 gaps_in = 5           → AssignmentNode { Key = "gaps_in", Value = "5" }
 enabled = true        → AssignmentNode { Key = "enabled",  Value = "true" }
+enabled = 0           → AssignmentNode { Key = "enabled",  Value = "0" }
 col.active = rgba(...)→ AssignmentNode { Key = "col.active", Value = "rgba(...)" }
 ```
 
@@ -276,6 +300,14 @@ there is a single source of truth for what each option means.
 
 The only structural distinction the parser makes is between node kinds
 (`AssignmentNode` vs `KeywordNode` vs `SectionNode` etc.) — never between value types.
+
+### Bool values
+
+Hyprland accepts all of the following as valid boolean values:
+`true` `false` `yes` `no` `on` `off` `0` `1`
+
+The parser emits all of them as raw strings. The `OptionRegistry` is responsible for
+recognizing all 8 forms when interpreting a `Bool` option.
 
 ---
 
