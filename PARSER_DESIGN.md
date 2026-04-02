@@ -22,41 +22,75 @@ and writes back to disk preserving everything it does not manage.
 ```
 text file
    ↓
-Lexer        → stream of tokens
+Lexer        → stream of tokens (ReadOnlySpan<char>, zero allocation)
    ↓
-Parser       → AST (tree of nodes)
+Parser       → AST (recursive descent, nodes allocated only on confirmation)
    ↓
 [modify]     → mutate nodes in memory
    ↓
-Writer       → serialize AST back to text
+Writer       → serialize AST back to text (single StringBuilder pass)
 ```
+
+### Implementation Strategy
+
+The parser is a **hand-written recursive descent parser**. No parser combinator libraries,
+no code generation. The grammar from
+[tree-sitter-hyprlang](https://github.com/tree-sitter-grammars/tree-sitter-hyprlang)
+is the authoritative syntax reference and the test oracle — if tree-sitter parses it,
+this parser must too.
+
+The top-level dispatch:
+
+```csharp
+private ConfigNode ParseLine() => currentToken switch
+{
+    TokenType.Dollar    => ParseDeclaration(),
+    TokenType.Source    => ParseSource(),
+    TokenType.Exec      => ParseExec(),
+    TokenType.Name      => PeekAhead() == '{' ? ParseSection() : ParseAssignmentOrKeyword(),
+    TokenType.Comment   => ParseComment(),
+    TokenType.NewLine   => ParseEmptyLine(),
+    _                   => ParseRaw()   // → RawNode
+};
+```
+
+### Lexer
+
+- Operates on `ReadOnlySpan<char>` — reads directly from the original string buffer, zero copies
+- Tokens are represented as `(TokenType, Range)` — two integers referencing a position in
+  the original input, no heap allocation during tokenization
 
 ### AST Node Types
 
-| Node            | Example                            |
-|-----------------|------------------------------------|
-| `DeclarationNode` | `$myvar = somevalue`             |
-| `AssignmentNode`  | `gaps_in = 5`                    |
-| `KeywordNode`     | `bind = SUPER,Q,killactive`      |
-| `SectionNode`     | `general { ... }`                |
-| `ExecNode`        | `exec-once = waybar`             |
-| `SourceNode`      | `source = ~/.config/hypr/other.conf` |
-| `CommentNode`     | `# this is a comment`            |
-| `EmptyLineNode`   | (blank line)                     |
-| `RawNode`         | anything unrecognized → preserved verbatim |
+| Node              | Example                                       | Type        |
+|-------------------|-----------------------------------------------|-------------|
+| `DeclarationNode` | `$myvar = somevalue`                          | sealed class |
+| `AssignmentNode`  | `gaps_in = 5`                                 | sealed class |
+| `KeywordNode`     | `bind = SUPER,Q,killactive`                   | sealed class |
+| `SectionNode`     | `general { ... }`                             | sealed class |
+| `ExecNode`        | `exec-once = waybar`                          | sealed class |
+| `SourceNode`      | `source = ~/.config/hypr/other.conf`          | sealed class |
+| `CommentNode`     | `# this is a comment`                         | sealed class |
+| `EmptyLineNode`   | (blank line)                                  | sealed class |
+| `RawNode`         | anything unrecognized → preserved verbatim    | sealed class |
+
+All node types are `sealed` to enable JIT devirtualization.
 
 ### Key Principle
 
 > **What is not understood is preserved verbatim.**
 > The parser never loses data. Unknown lines become `RawNode` and are written back as-is.
+> The cost of not recognizing a line is near zero — a `RawNode` is just a `Range` into
+> the original input buffer.
 
 ---
 
 ## Writer Rules
 
-- Reconstruct file from AST nodes in order
+- Reconstruct file from AST nodes in order via a single `StringBuilder` pass
 - Managed nodes → regenerated from model
-- `CommentNode` / `EmptyLineNode` / `RawNode` → written back exactly as read
+- `CommentNode` / `EmptyLineNode` / `RawNode` → written back exactly as read via `string.AsSpan()` slice
+- No string concatenation in loops
 - No trailing newline added or removed unless originally present
 
 ---
@@ -195,12 +229,35 @@ Writer       → serialize AST back to text
 
 ---
 
+## Performance
+
+Hyprlang configuration files are typically 100–500 lines. The parser is designed to handle
+a full file in the **low microsecond range** on modern hardware. The file read from disk
+will always dominate the total time — the parse itself is not the bottleneck.
+
+Key performance decisions:
+
+| Decision | Reason |
+|---|---|
+| `ReadOnlySpan<char>` in lexer | Zero allocation, no string copies |
+| Tokens as `(TokenType, Range)` | Two ints — no heap pressure during tokenization |
+| Recursive descent | Straight-line execution, no backtracking |
+| `sealed` on all node types | JIT can devirtualize all virtual dispatch |
+| `RawNode` as a `Range` | Unrecognized lines cost near zero |
+| Single `StringBuilder` in writer | No intermediate string allocations |
+| No LINQ in hot paths | Avoids iterator allocation and indirection |
+
+The goal is not to match Rust's zero-cost abstractions, but to remain within the same
+order of magnitude through disciplined use of `Span<T>` and avoiding unnecessary allocation.
+
+---
+
 ## AOT Constraints
 
 - No runtime reflection
 - No `dynamic` types
 - JSON deserialization (for `hyprctl -j`) uses `System.Text.Json` source generators
-- All node types are plain sealed classes with no attributes requiring reflection
+- All node types are plain `sealed class` with no attributes requiring reflection
 
 ---
 
