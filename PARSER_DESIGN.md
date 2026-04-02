@@ -261,9 +261,29 @@ order of magnitude through disciplined use of `Span<T>` and avoiding unnecessary
 
 ---
 
+## Value Handling
+
+The parser stores all values as **raw strings**. It does not interpret them.
+
+```
+gaps_in = 5           → AssignmentNode { Key = "gaps_in", Value = "5" }
+enabled = true        → AssignmentNode { Key = "enabled",  Value = "true" }
+col.active = rgba(...)→ AssignmentNode { Key = "col.active", Value = "rgba(...)" }
+```
+
+Type interpretation is the exclusive responsibility of the `OptionRegistry` in
+`Hypricing.Core`. This keeps the parser free of semantic knowledge and ensures
+there is a single source of truth for what each option means.
+
+The only structural distinction the parser makes is between node kinds
+(`AssignmentNode` vs `KeywordNode` vs `SectionNode` etc.) — never between value types.
+
+---
+
 ## Out of Scope for Parser
 
 The parser does NOT:
 - Follow `source =` includes (that is the responsibility of `HyprlandService`)
 - Validate semantic correctness (e.g. whether a monitor name is valid)
+- Interpret value types (that is the responsibility of `OptionRegistry`)
 - Understand what each keyword's params mean (that is the semantic layer)

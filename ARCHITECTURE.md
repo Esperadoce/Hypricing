@@ -154,7 +154,10 @@ Hypricing.Core/
 
 ### Semantic Layer
 
-The `OptionRegistry` maps known configuration options to their type and metadata:
+The parser only deals with structure — it stores all values as raw strings. The
+`OptionRegistry` is responsible for giving those strings meaning.
+
+It maps known configuration options to their type and metadata:
 
 ```csharp
 public record OptionDefinition(
@@ -164,7 +167,39 @@ public record OptionDefinition(
     object? Default,
     string Description
 );
+
+public enum OptionType
+{
+    Int,
+    Float,
+    Bool,
+    Color,
+    String,
+    Vec2,
+    MonitorParams,
+}
 ```
+
+The registry is built once at startup as a `Dictionary<string, OptionDefinition>`,
+keyed by `"section.key"`. Lookups are O(1) and AOT-safe — no reflection involved.
+
+```csharp
+// lookup
+var def = _registry["general.gaps_in"]; // → OptionType.Int
+
+// UI maps type to widget
+// Int    → slider or number input
+// Float  → slider with decimals
+// Bool   → toggle
+// Color  → color picker
+// String → text input
+// Vec2   → two number inputs
+// MonitorParams → drag canvas
+```
+
+**Contributor workflow:** to add support for a new option, a contributor adds one entry
+to the registry. The UI renders the appropriate widget automatically. The parser is
+never touched.
 
 Options not present in the registry pass through the parser as `RawNode` and are never
 modified. The registry is designed to grow incrementally — contributors can add definitions
