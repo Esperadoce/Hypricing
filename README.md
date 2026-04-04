@@ -78,9 +78,11 @@ Avalonia UI with sidebar navigation and MVVM pattern.
 
 **Current pages:**
 - **Variables** — add, edit, and remove `$var` declarations and `env` environment variables
+- **Keybindings** — manage `bind`, `binde`, `bindm` and other bind variants
+- **Display** — drag-and-drop monitor layout with edge snapping
 - **Startup** — manage `exec`, `exec-once`, and `exec-shutdown` entries
 - **Backups** — create, restore, and delete zip backups of all config files
-- Display, Audio, Power, Bluetooth — placeholders for future versions
+- Audio, Power, Bluetooth — placeholders for future versions
 
 **Multi-file support:** automatically follows `source =` includes across config files. Edits are saved back to the originating file.
 
@@ -106,17 +108,11 @@ dotnet run --project src/Hypricing.Desktop
 
 | Version | Scope |
 |---|---|
-| v0.1 | HyprlangParser — parser, writer, tests |
-| v0.2 | Variables page — `$var` declarations and `env` variables |
-| v0.3 | Startup page — exec entry management |
-| v0.4 | Source resolution — multi-file config support |
-| v0.5 | Backup system — zip backup/restore |
-| v0.6 | Native AOT — trimmed single-file binary |
-| v0.7 | Display page — monitor layout |
-| v0.8 | Audio page |
-| v0.9 | Power + Battery page |
-| v0.10 | Bluetooth page |
-| v1.0 | Polish, packaging |
+| v0.1 | Parser, variables, keybindings, display, startup, backups, Native AOT, AUR packaging |
+| v0.2 | Audio page |
+| v0.3 | Power + Battery page |
+| v0.4 | Bluetooth page |
+| v1.0 | Polish, themes, structured inputs |
 
 ## License
 
