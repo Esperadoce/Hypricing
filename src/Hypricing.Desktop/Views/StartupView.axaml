@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Hypricing.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Hypricing.Desktop.Views.StartupView"
+             x:DataType="vm:StartupViewModel">
+
+    <DockPanel Margin="16">
+
+        <!-- Header -->
+        <TextBlock DockPanel.Dock="Top"
+                   Text="Startup"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Margin="0,0,0,16" />
+
+        <!-- Bottom bar: status + save -->
+        <Grid DockPanel.Dock="Bottom" Margin="0,16,0,0" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0"
+                       Text="{Binding StatusMessage}"
+                       VerticalAlignment="Center"
+                       Foreground="Gray" />
+            <Button Grid.Column="1"
+                    Content="Save"
+                    Command="{Binding SaveCommand}" />
+        </Grid>
+
+        <!-- Add new entry -->
+        <Border DockPanel.Dock="Bottom"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="0,12,0,0"
+                Margin="0,8,0,0">
+            <Grid ColumnDefinitions="150,*,Auto">
+                <ComboBox Grid.Column="0"
+                          ItemsSource="{x:Static vm:ExecItemViewModel.AllVariants}"
+                          SelectedItem="{Binding NewVariant}"
+                          Margin="0,0,8,0" />
+                <TextBox Grid.Column="1"
+                         Text="{Binding NewCommand, Mode=TwoWay}"
+                         Watermark="Command to run..."
+                         Margin="0,0,8,0" />
+                <Button Grid.Column="2"
+                        Content="Add"
+                        Command="{Binding AddCommand}" />
+            </Grid>
+        </Border>
+
+        <!-- Exec entries list -->
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding ExecEntries}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ExecItemViewModel">
+                        <Grid ColumnDefinitions="120,*,Auto" Margin="0,4">
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding VariantDisplay}"
+                                       VerticalAlignment="Center"
+                                       FontFamily="monospace"
+                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding Command, Mode=TwoWay}"
+                                     Margin="8,0" />
+                            <Button Grid.Column="2"
+                                    Content="Remove"
+                                    Command="{Binding RemoveCommand}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+    </DockPanel>
+
+</UserControl>

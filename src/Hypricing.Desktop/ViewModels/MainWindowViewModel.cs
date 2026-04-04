@@ -1,28 +1,40 @@
+using System.Windows.Input;
+
 namespace Hypricing.Desktop.ViewModels;
 
 public sealed class MainWindowViewModel : ViewModelBase
 {
     private ViewModelBase _currentPage;
 
-    public MainWindowViewModel(VariablesViewModel variablesPage)
+    public MainWindowViewModel(
+        VariablesViewModel variablesPage,
+        StartupViewModel startupPage,
+        BackupViewModel backupPage)
     {
-        VariablesPage = variablesPage;
+        BackupPage = backupPage;
 
         Pages =
         [
             new PageItem("Variables", variablesPage),
             new PageItem("Display", new PlaceholderViewModel("Display")),
-            new PageItem("Startup", new PlaceholderViewModel("Startup")),
+            new PageItem("Startup", startupPage),
             new PageItem("Audio", new PlaceholderViewModel("Audio")),
             new PageItem("Power", new PlaceholderViewModel("Power")),
             new PageItem("Bluetooth", new PlaceholderViewModel("Bluetooth")),
         ];
 
         _currentPage = variablesPage;
+        OpenBackupsCommand = new RelayCommand(() =>
+        {
+            SelectedPage = null;
+            CurrentPage = backupPage;
+            backupPage.Refresh();
+        });
     }
 
     public IReadOnlyList<PageItem> Pages { get; }
-    public VariablesViewModel VariablesPage { get; }
+    public BackupViewModel BackupPage { get; }
+    public ICommand OpenBackupsCommand { get; }
 
     public ViewModelBase CurrentPage
     {

@@ -1,3 +1,4 @@
+using System.Windows.Input;
 using Hypricing.HyprlangParser.Nodes;
 
 namespace Hypricing.Desktop.ViewModels;
@@ -10,10 +11,14 @@ public sealed class DeclarationItemViewModel : ViewModelBase
 {
     private readonly DeclarationNode _node;
 
-    public DeclarationItemViewModel(DeclarationNode node)
+    public DeclarationItemViewModel(DeclarationNode node, Action<DeclarationItemViewModel>? onRemove = null)
     {
         _node = node;
+        RemoveCommand = new RelayCommand(() => onRemove?.Invoke(this));
     }
+
+    internal DeclarationNode Node => _node;
+    public ICommand RemoveCommand { get; }
 
     public string Name
     {

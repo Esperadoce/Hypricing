@@ -22,7 +22,9 @@ public partial class App : Application
             var cli = new CliRunner();
             var service = new HyprlandService(cli);
             var variablesVm = new VariablesViewModel(service);
-            var mainVm = new MainWindowViewModel(variablesVm);
+            var startupVm = new StartupViewModel(service);
+            var backupVm = new BackupViewModel(service);
+            var mainVm = new MainWindowViewModel(variablesVm, startupVm, backupVm);
 
             desktop.MainWindow = new MainWindow
             {
@@ -32,7 +34,12 @@ public partial class App : Application
             // Select the first page
             mainVm.SelectedPage = mainVm.Pages[0];
 
-            _ = variablesVm.LoadAsync();
+            _ = variablesVm.LoadAsync().ContinueWith(_ =>
+                {
+                    startupVm.Refresh();
+                    backupVm.Refresh();
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         base.OnFrameworkInitializationCompleted();

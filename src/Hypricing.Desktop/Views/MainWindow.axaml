@@ -24,6 +24,13 @@
                            FontWeight="Bold"
                            Margin="16,8,16,16" />
 
+                <Button DockPanel.Dock="Bottom"
+                        Content="Backups"
+                        Command="{Binding OpenBackupsCommand}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="8,8" />
+
                 <ListBox ItemsSource="{Binding Pages}"
                          SelectedItem="{Binding SelectedPage}"
                          Margin="0,0,0,0">
@@ -43,6 +50,12 @@
             <ContentControl.DataTemplates>
                 <DataTemplate DataType="vm:VariablesViewModel">
                     <views:VariablesView />
+                </DataTemplate>
+                <DataTemplate DataType="vm:StartupViewModel">
+                    <views:StartupView />
+                </DataTemplate>
+                <DataTemplate DataType="vm:BackupViewModel">
+                    <views:BackupView />
                 </DataTemplate>
                 <DataTemplate DataType="vm:PlaceholderViewModel">
                     <TextBlock Text="{Binding PageName, StringFormat='{}{0} — coming soon'}"

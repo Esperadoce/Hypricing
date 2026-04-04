@@ -32,10 +32,10 @@
         </Grid>
 
         <ScrollViewer>
-            <StackPanel Spacing="16">
+            <StackPanel Spacing="24">
 
                 <!-- $var declarations -->
-                <StackPanel IsVisible="{Binding Declarations.Count}">
+                <StackPanel>
                     <TextBlock Text="Declarations"
                                FontSize="16"
                                FontWeight="SemiBold"
@@ -43,18 +43,40 @@
                     <ItemsControl ItemsSource="{Binding Declarations}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:DeclarationItemViewModel">
-                                <Grid ColumnDefinitions="200,*" Margin="0,4">
+                                <Grid ColumnDefinitions="200,*,Auto" Margin="0,4">
                                     <TextBlock Grid.Column="0"
                                                Text="{Binding Name, StringFormat='${0}'}"
                                                VerticalAlignment="Center"
                                                FontFamily="monospace" />
                                     <TextBox Grid.Column="1"
                                              Text="{Binding Value, Mode=TwoWay}"
-                                             Margin="8,0,0,0" />
+                                             Margin="8,0" />
+                                    <Button Grid.Column="2"
+                                            Content="Remove"
+                                            Command="{Binding RemoveCommand}" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <!-- Add declaration -->
+                    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                            BorderThickness="0,1,0,0"
+                            Padding="0,8,0,0"
+                            Margin="0,8,0,0">
+                        <Grid ColumnDefinitions="200,*,Auto">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding NewDeclName, Mode=TwoWay}"
+                                     Watermark="Name"
+                                     FontFamily="monospace" />
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding NewDeclValue, Mode=TwoWay}"
+                                     Watermark="Value"
+                                     Margin="8,0" />
+                            <Button Grid.Column="2"
+                                    Content="Add"
+                                    Command="{Binding AddDeclarationCommand}" />
+                        </Grid>
+                    </Border>
                 </StackPanel>
 
                 <!-- env = KEY,VALUE -->
@@ -66,17 +88,39 @@
                     <ItemsControl ItemsSource="{Binding EnvironmentVariables}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:EnvItemViewModel">
-                                <Grid ColumnDefinitions="200,*" Margin="0,4">
+                                <Grid ColumnDefinitions="200,*,Auto" Margin="0,4">
                                     <TextBox Grid.Column="0"
                                              Text="{Binding Name, Mode=TwoWay}"
                                              FontFamily="monospace" />
                                     <TextBox Grid.Column="1"
                                              Text="{Binding Value, Mode=TwoWay}"
-                                             Margin="8,0,0,0" />
+                                             Margin="8,0" />
+                                    <Button Grid.Column="2"
+                                            Content="Remove"
+                                            Command="{Binding RemoveCommand}" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <!-- Add env -->
+                    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                            BorderThickness="0,1,0,0"
+                            Padding="0,8,0,0"
+                            Margin="0,8,0,0">
+                        <Grid ColumnDefinitions="200,*,Auto">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding NewEnvKey, Mode=TwoWay}"
+                                     Watermark="KEY"
+                                     FontFamily="monospace" />
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding NewEnvValue, Mode=TwoWay}"
+                                     Watermark="value"
+                                     Margin="8,0" />
+                            <Button Grid.Column="2"
+                                    Content="Add"
+                                    Command="{Binding AddEnvCommand}" />
+                        </Grid>
+                    </Border>
                 </StackPanel>
 
             </StackPanel>

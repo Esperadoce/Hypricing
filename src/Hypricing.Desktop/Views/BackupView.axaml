@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Hypricing.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Hypricing.Desktop.Views.BackupView"
+             x:DataType="vm:BackupViewModel">
+
+    <DockPanel Margin="16">
+
+        <!-- Header -->
+        <TextBlock DockPanel.Dock="Top"
+                   Text="Backups"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Margin="0,0,0,16" />
+
+        <!-- Bottom bar: status + create -->
+        <Grid DockPanel.Dock="Bottom" Margin="0,16,0,0" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0"
+                       Text="{Binding StatusMessage}"
+                       VerticalAlignment="Center"
+                       Foreground="Gray" />
+            <Button Grid.Column="1"
+                    Content="Create Backup"
+                    Command="{Binding CreateBackupCommand}" />
+        </Grid>
+
+        <!-- Backup list -->
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Backups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:BackupItemViewModel">
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="0,8"
+                                Margin="0,0,0,4">
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <StackPanel Grid.Column="0" Spacing="2">
+                                    <TextBlock Text="{Binding Info.FileName}"
+                                               FontFamily="monospace" />
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <TextBlock Text="{Binding Info.CreatedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}"
+                                                   Foreground="Gray"
+                                                   FontSize="12" />
+                                        <TextBlock Text="{Binding Info.SizeDisplay}"
+                                                   Foreground="Gray"
+                                                   FontSize="12" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button Grid.Column="1"
+                                        Content="Restore"
+                                        Command="{Binding RestoreCommand}"
+                                        Margin="0,0,8,0" />
+                                <Button Grid.Column="2"
+                                        Content="Delete"
+                                        Command="{Binding DeleteCommand}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+    </DockPanel>
+
+</UserControl>

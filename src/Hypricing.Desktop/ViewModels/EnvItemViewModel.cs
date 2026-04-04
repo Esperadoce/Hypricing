@@ -1,3 +1,4 @@
+using System.Windows.Input;
 using Hypricing.HyprlangParser.Nodes;
 
 namespace Hypricing.Desktop.ViewModels;
@@ -12,9 +13,10 @@ public sealed class EnvItemViewModel : ViewModelBase
     private string _name;
     private string _value;
 
-    public EnvItemViewModel(KeywordNode node)
+    public EnvItemViewModel(KeywordNode node, Action<EnvItemViewModel>? onRemove = null)
     {
         _node = node;
+        RemoveCommand = new RelayCommand(() => onRemove?.Invoke(this));
         var commaIndex = node.Params.IndexOf(',');
         if (commaIndex >= 0)
         {
@@ -27,6 +29,9 @@ public sealed class EnvItemViewModel : ViewModelBase
             _value = string.Empty;
         }
     }
+
+    internal KeywordNode Node => _node;
+    public ICommand RemoveCommand { get; }
 
     public string Name
     {
