@@ -18,8 +18,8 @@ public sealed class VariablesViewModel : ViewModelBase
         _service = service;
         SaveCommand = new AsyncRelayCommand(SaveAsync);
         ReloadCommand = new AsyncRelayCommand(LoadAsync);
-        AddDeclarationCommand = new AsyncRelayCommand(AddDeclarationAsync);
-        AddEnvCommand = new AsyncRelayCommand(AddEnvAsync);
+        AddDeclarationCommand = new RelayCommand(AddDeclaration);
+        AddEnvCommand = new RelayCommand(AddEnv);
     }
 
     public ObservableCollection<DeclarationItemViewModel> Declarations { get; } = [];
@@ -91,22 +91,22 @@ public sealed class VariablesViewModel : ViewModelBase
         EnvironmentVariables.Remove(item);
     }
 
-    private async Task AddDeclarationAsync()
+    private void AddDeclaration()
     {
         if (string.IsNullOrWhiteSpace(NewDeclName)) return;
         _service.AddDeclaration(NewDeclName.Trim(), NewDeclValue.Trim());
         NewDeclName = string.Empty;
         NewDeclValue = string.Empty;
-        await SaveAsync();
+        Refresh();
     }
 
-    private async Task AddEnvAsync()
+    private void AddEnv()
     {
         if (string.IsNullOrWhiteSpace(NewEnvKey)) return;
         _service.AddEnvironmentVariable(NewEnvKey.Trim(), NewEnvValue.Trim());
         NewEnvKey = string.Empty;
         NewEnvValue = string.Empty;
-        await SaveAsync();
+        Refresh();
     }
 
     private async Task SaveAsync()

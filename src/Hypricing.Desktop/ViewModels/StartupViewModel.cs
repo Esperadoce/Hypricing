@@ -16,7 +16,7 @@ public sealed class StartupViewModel : ViewModelBase
     {
         _service = service;
         SaveCommand = new AsyncRelayCommand(SaveAsync);
-        AddCommand = new AsyncRelayCommand(AddEntryAsync);
+        AddCommand = new RelayCommand(AddEntry);
     }
 
     public ObservableCollection<ExecItemViewModel> ExecEntries { get; } = [];
@@ -70,15 +70,14 @@ public sealed class StartupViewModel : ViewModelBase
         ExecEntries.Remove(item);
     }
 
-    private async Task AddEntryAsync()
+    private void AddEntry()
     {
         if (string.IsNullOrWhiteSpace(NewCommand))
             return;
 
         _service.AddExecEntry(NewVariant, NewCommand.Trim());
         NewCommand = string.Empty;
-
-        await SaveAsync();
+        Refresh();
     }
 
     private async Task SaveAsync()
