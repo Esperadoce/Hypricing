@@ -1,8 +1,11 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Hypricing.Core/Hypricing.Core.csproj" />
+    <Project Path="src/Hypricing.Desktop/Hypricing.Desktop.csproj" />
     <Project Path="src/Hypricing.HyprlangParser/Hypricing.HyprlangParser.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Hypricing.Core.Tests/Hypricing.Core.Tests.csproj" />
     <Project Path="tests/Hypricing.HyprlangParser.Tests/Hypricing.HyprlangParser.Tests.csproj" />
   </Folder>
 </Solution>
