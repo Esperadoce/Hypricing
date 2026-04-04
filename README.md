@@ -69,15 +69,20 @@ Business logic layer that manages the Hyprland configuration lifecycle.
 
 - **ConfigFileLocator** — resolves `hyprland.conf` via `$HYPRLAND_CONFIG`, `$XDG_CONFIG_HOME`, or `~/.config/hypr/`
 - **CliRunner** — thin `Process.Start` wrapper, virtual methods for test subclassing
-- **HyprlandService** — load, modify, save config + `hyprctl reload`
+- **HyprlandService** — load, modify, save config + `hyprctl reload`; follows `source =` includes recursively
+- **BackupService** — zip backup/restore under `~/.config/hypr/backups/`
 
 ## Desktop
 
 Avalonia UI with sidebar navigation and MVVM pattern.
 
 **Current pages:**
-- **Variables** — view and edit `$var` declarations and `env` environment variables
-- Display, Startup, Audio, Power, Bluetooth — placeholders for future versions
+- **Variables** — add, edit, and remove `$var` declarations and `env` environment variables
+- **Startup** — manage `exec`, `exec-once`, and `exec-shutdown` entries
+- **Backups** — create, restore, and delete zip backups of all config files
+- Display, Audio, Power, Bluetooth — placeholders for future versions
+
+**Multi-file support:** automatically follows `source =` includes across config files. Edits are saved back to the originating file.
 
 ## Building
 
@@ -102,13 +107,16 @@ dotnet run --project src/Hypricing.Desktop
 | Version | Scope |
 |---|---|
 | v0.1 | HyprlangParser — parser, writer, tests |
-| v0.2 | Variables page — read/write `$var` declarations and `env` variables |
-| v0.3 | Display page — monitor layout drag-and-drop |
-| v0.4 | Startup page — exec manager |
-| v0.5 | Audio page |
-| v0.6 | Power + Battery page |
-| v0.7 | Bluetooth page |
-| v1.0 | Polish, AOT build, packaging |
+| v0.2 | Variables page — `$var` declarations and `env` variables |
+| v0.3 | Startup page — exec entry management |
+| v0.4 | Source resolution — multi-file config support |
+| v0.5 | Backup system — zip backup/restore |
+| v0.6 | Native AOT — trimmed single-file binary |
+| v0.7 | Display page — monitor layout |
+| v0.8 | Audio page |
+| v0.9 | Power + Battery page |
+| v0.10 | Bluetooth page |
+| v1.0 | Polish, packaging |
 
 ## License
 
