@@ -25,8 +25,10 @@ public partial class App : Application
             var startupVm = new StartupViewModel(service);
             var keybindingsVm = new KeybindingsViewModel(service);
             var monitorsVm = new MonitorsViewModel(service);
+            var audioService = new AudioService(cli);
+            var audioVm = new AudioViewModel(audioService);
             var backupVm = new BackupViewModel(service);
-            var mainVm = new MainWindowViewModel(variablesVm, startupVm, keybindingsVm, monitorsVm, backupVm);
+            var mainVm = new MainWindowViewModel(variablesVm, startupVm, keybindingsVm, monitorsVm, audioVm, backupVm);
 
             desktop.MainWindow = new MainWindow
             {
@@ -41,6 +43,7 @@ public partial class App : Application
                     startupVm.Refresh();
                     keybindingsVm.Refresh();
                     monitorsVm.Refresh();
+                    _ = audioVm.InitializeAsync();
                     backupVm.Refresh();
                 },
                 TaskScheduler.FromCurrentSynchronizationContext());

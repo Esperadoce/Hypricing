@@ -1,0 +1,45 @@
+{
+  "name": "PulseAudio (pactl)",
+  "detect": "pactl",
+  "commands": {
+    "listSinks": {
+      "run": "pactl -f json list sinks",
+      "format": "json",
+      "fields": {
+        "id": "index",
+        "name": "name",
+        "description": "description",
+        "volume": "volume.front-left.value_percent",
+        "muted": "mute"
+      }
+    },
+    "listSources": {
+      "run": "pactl -f json list sources",
+      "format": "json",
+      "fields": {
+        "id": "index",
+        "name": "name",
+        "description": "description",
+        "volume": "volume.front-left.value_percent",
+        "muted": "mute"
+      }
+    },
+    "listStreams": {
+      "run": "pactl -f json list sink-inputs",
+      "format": "json",
+      "fields": {
+        "id": "index",
+        "appName": "properties.application.name",
+        "sinkId": "sink",
+        "volume": "volume.front-left.value_percent",
+        "muted": "mute"
+      }
+    },
+    "setVolume": "pactl set-sink-volume {id} {volume}",
+    "toggleMute": "pactl set-sink-mute {id} toggle",
+    "setDefaultSink": "pactl set-default-sink {id}",
+    "setDefaultSource": "pactl set-default-source {id}",
+    "moveStream": "pactl move-sink-input {streamId} {sinkId}",
+    "setStreamVolume": "pactl set-sink-input-volume {streamId} {volume}"
+  }
+}

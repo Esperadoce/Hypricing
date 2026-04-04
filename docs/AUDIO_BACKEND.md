@@ -1,0 +1,206 @@
+# Audio Backend
+
+Hypricing uses a **contract-based, JSON-driven** audio backend. Instead of hardcoding
+support for PipeWire or PulseAudio, every audio operation is described in a JSON
+**preset** file. This means:
+
+- PipeWire and PulseAudio work out of the box (shipped presets).
+- Any other audio stack can be supported by writing a single JSON file.
+- No recompilation needed.
+
+## How it works
+
+```
+┌──────────────┐      ┌──────────────────┐      ┌───────────────┐
+│  AudioView   │─────▶│  JsonAudioBackend │─────▶│  CLI tools    │
+│  (Avalonia)  │      │  (reads preset)   │      │  wpctl, pactl │
+└──────────────┘      └──────────────────┘      └───────────────┘
+                              │
+                      reads commands &
+                      field mappings from
+                              │
+                      ┌───────▼───────┐
+                      │  audio.json   │
+                      │  (preset)     │
+                      └───────────────┘
+```
+
+1. **AudioService** looks for a user preset at `~/.config/hypricing/audio.json`.
+2. If none exists, it auto-detects from built-in presets by checking which CLI tool
+   is installed (e.g., `which wpctl`). PipeWire is tried first.
+3. The detected preset is written to `~/.config/hypricing/audio.json` so users can
+   edit it later.
+4. **JsonAudioBackend** reads the preset and executes the described shell commands,
+   parsing their JSON output using the field mappings.
+
+## Contract
+
+All backends implement `IAudioBackend`:
+
+| Method | Description |
+|---|---|
+| `ListSinksAsync` | List output devices (speakers, headphones, HDMI) |
+| `ListSourcesAsync` | List input devices (microphones) |
+| `ListStreamsAsync` | List running audio streams (apps playing sound) |
+| `SetVolumeAsync` | Set device volume (0.0 – 1.5, i.e., up to 150%) |
+| `ToggleMuteAsync` | Toggle mute on a device |
+| `SetDefaultSinkAsync` | Set the default output device |
+| `SetDefaultSourceAsync` | Set the default input device |
+| `MoveStreamAsync` | Move a stream to a different output device |
+| `SetStreamVolumeAsync` | Set volume for a specific stream |
+
+Data models:
+
+- **AudioDevice** — `Id`, `Name`, `Description`, `Volume`, `Muted`, `IsDefault`
+- **AudioStream** — `Id`, `AppName`, `SinkId`, `Volume`, `Muted`
+
+## Preset format
+
+A preset is a JSON file with two top-level fields:
+
+```json
+{
+  "name": "My Audio Stack",
+  "detect": "my-audio-tool",
+  "commands": { ... }
+}
+```
+
+| Field | Description |
+|---|---|
+| `name` | Display name shown in the UI status bar |
+| `detect` | CLI tool name — Hypricing runs `which <detect>` to check availability |
+| `commands` | Object containing all audio operations (see below) |
+
+### Query commands
+
+Query commands (listing devices/streams) have this shape:
+
+```json
+{
+  "run": "pactl -f json list sinks",
+  "format": "json",
+  "fields": {
+    "id": "index",
+    "name": "name",
+    "description": "description",
+    "volume": "volume.front-left.value_percent",
+    "muted": "mute"
+  }
+}
+```
+
+| Field | Description |
+|---|---|
+| `run` | Shell command to execute. Must return a JSON array. |
+| `format` | Output format. Currently only `"json"` is supported. |
+| `fields` | Maps contract fields to JSON paths using **dot-notation**. |
+
+#### Dot-notation paths
+
+Paths walk into nested JSON objects. For example, given this `pactl` output:
+
+```json
+{
+  "index": 42,
+  "description": "Built-in Audio",
+  "volume": {
+    "front-left": {
+      "value_percent": "74%"
+    }
+  }
+}
+```
+
+The path `volume.front-left.value_percent` resolves to `"74%"`.
+
+Volume values can be either `"74%"` (percentage string) or `0.74` (decimal) — both
+are handled automatically.
+
+#### Required fields per command
+
+**listSinks / listSources:**
+- `id` — device identifier (integer)
+- `name` — internal name
+- `description` — human-readable label
+- `volume` — current volume level
+- `muted` — boolean mute state
+
+**listStreams:**
+- `id` — stream identifier
+- `appName` — application name
+- `sinkId` — which output device the stream is routed to
+- `volume` — stream volume
+- `muted` — mute state
+
+### Action commands
+
+Action commands are plain strings with placeholders:
+
+```json
+{
+  "setVolume": "wpctl set-volume {id} {volume}",
+  "toggleMute": "wpctl set-mute {id} toggle",
+  "setDefaultSink": "wpctl set-default {id}",
+  "setDefaultSource": "wpctl set-default {id}",
+  "moveStream": "pactl move-sink-input {streamId} {sinkId}",
+  "setStreamVolume": "pactl set-sink-input-volume {streamId} {volume}"
+}
+```
+
+| Placeholder | Replaced with |
+|---|---|
+| `{id}` | Device ID |
+| `{volume}` | Volume as decimal (e.g., `0.74`) |
+| `{streamId}` | Stream ID |
+| `{sinkId}` | Target sink ID |
+
+## Shipped presets
+
+### PipeWire (`audio-pipewire.json`)
+
+For systems using PipeWire (most modern Wayland setups).
+
+- **Detected via:** `wpctl`
+- **Listing:** `pactl -f json` (PipeWire provides pactl compatibility)
+- **Device control:** `wpctl set-volume`, `wpctl set-mute`, `wpctl set-default`
+- **Stream control:** `pactl move-sink-input`, `pactl set-sink-input-volume`
+
+### PulseAudio (`audio-pulseaudio.json`)
+
+For systems using PulseAudio directly.
+
+- **Detected via:** `pactl`
+- **Listing:** `pactl -f json`
+- **Device control:** `pactl set-sink-volume`, `pactl set-sink-mute`, `pactl set-default-sink`
+- **Stream control:** `pactl move-sink-input`, `pactl set-sink-input-volume`
+
+## Writing a custom preset
+
+1. Copy one of the shipped presets as a starting point:
+   ```sh
+   cp ~/.config/hypricing/audio.json ~/.config/hypricing/audio.json.bak
+   ```
+
+2. Edit `~/.config/hypricing/audio.json`:
+   - Change `name` to describe your setup.
+   - Change `detect` to a tool from your stack.
+   - Update each command under `commands` to use your CLI tools.
+   - Update `fields` mappings to match your tool's JSON output.
+
+3. To figure out the field mappings, run the list command manually and inspect the
+   output:
+   ```sh
+   pactl -f json list sinks | jq '.[0]'
+   ```
+   Then trace the path to each field you need.
+
+4. Restart Hypricing. The status bar at the bottom of the Audio page shows which
+   preset is active.
+
+## File locations
+
+| File | Location |
+|---|---|
+| User preset | `$XDG_CONFIG_HOME/hypricing/audio.json` (default: `~/.config/hypricing/audio.json`) |
+| Built-in presets | Embedded in the binary at build time (`src/Hypricing.Core/Presets/audio-*.json`) |

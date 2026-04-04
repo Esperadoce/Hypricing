@@ -1,0 +1,193 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Hypricing.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Hypricing.Desktop.Views.AudioView"
+             x:DataType="vm:AudioViewModel">
+
+    <DockPanel>
+
+        <TextBlock DockPanel.Dock="Top"
+                   Classes="page-title"
+                   Text="Audio" />
+
+        <!-- Bottom bar -->
+        <Border DockPanel.Dock="Bottom"
+                Classes="card-elevated"
+                CornerRadius="12,12,0,0"
+                Padding="20,14"
+                Margin="0,16,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Classes="status"
+                           Text="{Binding StatusMessage}" />
+                <Button Grid.Column="1"
+                        Classes="accent"
+                        Content="Refresh"
+                        Command="{Binding RefreshCommand}" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer>
+            <StackPanel Spacing="24">
+
+                <!-- Output Devices (Sinks) -->
+                <StackPanel>
+                    <TextBlock Classes="section-title" Text="Output Devices" />
+                    <Border Classes="card">
+                        <ItemsControl ItemsSource="{Binding Sinks}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SinkViewModel">
+                                    <Border Classes="card-item" Padding="14,12">
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Description}"
+                                                               FontSize="14"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#cdd6f4" />
+                                                    <TextBlock Text="{Binding Name}"
+                                                               Classes="muted"
+                                                               FontFamily="JetBrains Mono, Cascadia Code, monospace" />
+                                                </StackPanel>
+                                                <Border Grid.Column="1"
+                                                        Classes="badge"
+                                                        IsVisible="{Binding IsDefault}"
+                                                        Margin="0,0,8,0">
+                                                    <TextBlock Text="Default" FontSize="11" />
+                                                </Border>
+                                                <Button Grid.Column="1"
+                                                        Classes="ghost"
+                                                        Content="Set Default"
+                                                        Command="{Binding SetDefaultCommand}"
+                                                        IsVisible="{Binding !IsDefault}"
+                                                        Margin="0,0,8,0" />
+                                                <Button Grid.Column="2"
+                                                        Classes="ghost"
+                                                        Content="{Binding MuteLabel}"
+                                                        Command="{Binding ToggleMuteCommand}" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,50">
+                                                <Slider Grid.Column="0"
+                                                        Minimum="0"
+                                                        Maximum="1.5"
+                                                        Value="{Binding Volume, Mode=TwoWay}"
+                                                        TickFrequency="0.01" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding VolumePercent, StringFormat='{}{0}%'}"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#a6adc8"
+                                                           FontFamily="JetBrains Mono, Cascadia Code, monospace"
+                                                           FontSize="13" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </StackPanel>
+
+                <!-- Input Devices (Sources) -->
+                <StackPanel>
+                    <TextBlock Classes="section-title" Text="Input Devices" />
+                    <Border Classes="card">
+                        <ItemsControl ItemsSource="{Binding Sources}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SinkViewModel">
+                                    <Border Classes="card-item" Padding="14,12">
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Description}"
+                                                               FontSize="14"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#cdd6f4" />
+                                                    <TextBlock Text="{Binding Name}"
+                                                               Classes="muted"
+                                                               FontFamily="JetBrains Mono, Cascadia Code, monospace" />
+                                                </StackPanel>
+                                                <Button Grid.Column="1"
+                                                        Classes="ghost"
+                                                        Command="{Binding ToggleMuteCommand}"
+                                                        Content="Mute" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,50">
+                                                <Slider Grid.Column="0"
+                                                        Minimum="0"
+                                                        Maximum="1.5"
+                                                        Value="{Binding Volume, Mode=TwoWay}"
+                                                        TickFrequency="0.01" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding VolumePercent, StringFormat='{}{0}%'}"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#a6adc8"
+                                                           FontFamily="JetBrains Mono, Cascadia Code, monospace"
+                                                           FontSize="13" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </StackPanel>
+
+                <!-- Streams (Running Apps) -->
+                <StackPanel>
+                    <TextBlock Classes="section-title" Text="Running Streams" />
+                    <Border Classes="card">
+                        <ItemsControl ItemsSource="{Binding Streams}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:StreamViewModel">
+                                    <Border Classes="card-item" Padding="14,12">
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding AppName}"
+                                                           FontSize="14"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#f9e2af" />
+                                                <ComboBox Grid.Column="1"
+                                                          ItemsSource="{Binding AvailableSinks}"
+                                                          SelectedItem="{Binding TargetSink, Mode=TwoWay}"
+                                                          MinWidth="200">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:SinkViewModel">
+                                                            <TextBlock Text="{Binding Description}" />
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,50">
+                                                <Slider Grid.Column="0"
+                                                        Minimum="0"
+                                                        Maximum="1.5"
+                                                        Value="{Binding Volume, Mode=TwoWay}"
+                                                        TickFrequency="0.01" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding VolumePercent, StringFormat='{}{0}%'}"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="#a6adc8"
+                                                           FontFamily="JetBrains Mono, Cascadia Code, monospace"
+                                                           FontSize="13" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </DockPanel>
+
+</UserControl>
