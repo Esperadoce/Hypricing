@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Hypricing.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Hypricing.Desktop.Views.VariablesView"
+             x:DataType="vm:VariablesViewModel">
+
+    <DockPanel Margin="16">
+
+        <!-- Header -->
+        <TextBlock DockPanel.Dock="Top"
+                   Text="Variables"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Margin="0,0,0,16" />
+
+        <!-- Bottom bar: status + buttons -->
+        <Grid DockPanel.Dock="Bottom" Margin="0,16,0,0" ColumnDefinitions="*,Auto,Auto">
+            <TextBlock Grid.Column="0"
+                       Text="{Binding StatusMessage}"
+                       VerticalAlignment="Center"
+                       Foreground="Gray" />
+            <Button Grid.Column="1"
+                    Content="Reload"
+                    Command="{Binding ReloadCommand}"
+                    Margin="0,0,8,0" />
+            <Button Grid.Column="2"
+                    Content="Save"
+                    Command="{Binding SaveCommand}" />
+        </Grid>
+
+        <ScrollViewer>
+            <StackPanel Spacing="16">
+
+                <!-- $var declarations -->
+                <StackPanel IsVisible="{Binding Declarations.Count}">
+                    <TextBlock Text="Declarations"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding Declarations}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DeclarationItemViewModel">
+                                <Grid ColumnDefinitions="200,*" Margin="0,4">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Name, StringFormat='${0}'}"
+                                               VerticalAlignment="Center"
+                                               FontFamily="monospace" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Value, Mode=TwoWay}"
+                                             Margin="8,0,0,0" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- env = KEY,VALUE -->
+                <StackPanel>
+                    <TextBlock Text="Environment Variables"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding EnvironmentVariables}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:EnvItemViewModel">
+                                <Grid ColumnDefinitions="200,*" Margin="0,4">
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding Name, Mode=TwoWay}"
+                                             FontFamily="monospace" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Value, Mode=TwoWay}"
+                                             Margin="8,0,0,0" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </DockPanel>
+
+</UserControl>

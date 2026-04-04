@@ -1,0 +1,59 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Hypricing.Desktop.ViewModels"
+        xmlns:views="using:Hypricing.Desktop.Views"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+        x:Class="Hypricing.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Hypricing"
+        Width="900" Height="600">
+
+    <Grid ColumnDefinitions="200,*">
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                BorderThickness="0,0,1,0"
+                Padding="0,8">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Text="Hypricing"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Margin="16,8,16,16" />
+
+                <ListBox ItemsSource="{Binding Pages}"
+                         SelectedItem="{Binding SelectedPage}"
+                         Margin="0,0,0,0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:PageItem">
+                            <TextBlock Text="{Binding Name}"
+                                       Margin="8,4" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Content area -->
+        <ContentControl Grid.Column="1"
+                        Content="{Binding CurrentPage}">
+            <ContentControl.DataTemplates>
+                <DataTemplate DataType="vm:VariablesViewModel">
+                    <views:VariablesView />
+                </DataTemplate>
+                <DataTemplate DataType="vm:PlaceholderViewModel">
+                    <TextBlock Text="{Binding PageName, StringFormat='{}{0} — coming soon'}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="18"
+                               Foreground="Gray" />
+                </DataTemplate>
+            </ContentControl.DataTemplates>
+        </ContentControl>
+
+    </Grid>
+
+</Window>
