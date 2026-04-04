@@ -311,6 +311,72 @@ public class HyprlandServiceTests : IDisposable
         Assert.Single(service.GetDeclarations());
     }
 
+    [Fact]
+    public async Task AddDeclarationAndSave()
+    {
+        var path = WriteTempConfig("$existing = val\n");
+
+        var service = CreateService();
+        await service.LoadAsync(path);
+
+        service.AddDeclaration("newvar", "hello");
+        await service.SaveAsync();
+
+        var saved = await File.ReadAllTextAsync(path);
+        Assert.Contains("$newvar = hello", saved);
+        Assert.Contains("$existing = val", saved);
+    }
+
+    [Fact]
+    public async Task RemoveDeclarationAndSave()
+    {
+        var path = WriteTempConfig("$keep = yes\n$remove = no\n");
+
+        var service = CreateService();
+        await service.LoadAsync(path);
+
+        var decls = service.GetDeclarations();
+        service.RemoveDeclaration(decls.First(d => d.Name == "remove"));
+        await service.SaveAsync();
+
+        var saved = await File.ReadAllTextAsync(path);
+        Assert.Contains("$keep = yes", saved);
+        Assert.DoesNotContain("$remove", saved);
+    }
+
+    [Fact]
+    public async Task AddEnvironmentVariableAndSave()
+    {
+        var path = WriteTempConfig("env = EXISTING,val\n");
+
+        var service = CreateService();
+        await service.LoadAsync(path);
+
+        service.AddEnvironmentVariable("NEW_VAR", "new_val");
+        await service.SaveAsync();
+
+        var saved = await File.ReadAllTextAsync(path);
+        Assert.Contains("env = NEW_VAR,new_val", saved);
+        Assert.Contains("env = EXISTING,val", saved);
+    }
+
+    [Fact]
+    public async Task RemoveEnvironmentVariableAndSave()
+    {
+        var path = WriteTempConfig("env = KEEP,yes\nenv = REMOVE,no\n");
+
+        var service = CreateService();
+        await service.LoadAsync(path);
+
+        var envVars = service.GetEnvironmentVariables();
+        service.RemoveEnvironmentVariable(envVars.First(e => e.Params.Contains("REMOVE")));
+        await service.SaveAsync();
+
+        var saved = await File.ReadAllTextAsync(path);
+        Assert.Contains("env = KEEP,yes", saved);
+        Assert.DoesNotContain("REMOVE", saved);
+    }
+
     private string WriteTempConfig(string content) => WriteTempFile("hyprland.conf", content);
 
     private string WriteTempFile(string name, string content)
