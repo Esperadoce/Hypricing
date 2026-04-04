@@ -7,119 +7,134 @@
              x:Class="Hypricing.Desktop.Views.VariablesView"
              x:DataType="vm:VariablesViewModel">
 
-    <DockPanel Margin="16">
+    <DockPanel>
 
-        <!-- Header -->
         <TextBlock DockPanel.Dock="Top"
-                   Text="Variables"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Margin="0,0,0,16" />
+                   Classes="page-title"
+                   Text="Variables" />
 
-        <!-- Bottom bar: status + buttons -->
-        <Grid DockPanel.Dock="Bottom" Margin="0,16,0,0" ColumnDefinitions="*,Auto,Auto">
-            <TextBlock Grid.Column="0"
-                       Text="{Binding StatusMessage}"
-                       VerticalAlignment="Center"
-                       Foreground="Gray" />
-            <Button Grid.Column="1"
-                    Content="Reload"
-                    Command="{Binding ReloadCommand}"
-                    Margin="0,0,8,0" />
-            <Button Grid.Column="2"
-                    Content="Save"
-                    Command="{Binding SaveCommand}" />
-        </Grid>
+        <!-- Bottom bar -->
+        <Border DockPanel.Dock="Bottom"
+                Classes="card-elevated"
+                CornerRadius="12,12,0,0"
+                Padding="20,14"
+                Margin="0,16,0,0">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0"
+                           Classes="status"
+                           Text="{Binding StatusMessage}" />
+                <Button Grid.Column="1"
+                        Classes="ghost"
+                        Content="Reload"
+                        Command="{Binding ReloadCommand}"
+                        Margin="0,0,8,0" />
+                <Button Grid.Column="2"
+                        Classes="accent"
+                        Content="Save"
+                        Command="{Binding SaveCommand}" />
+            </Grid>
+        </Border>
 
         <ScrollViewer>
-            <StackPanel Spacing="24">
+            <StackPanel Spacing="28">
 
-                <!-- $var declarations -->
+                <!-- Declarations -->
                 <StackPanel>
-                    <TextBlock Text="Declarations"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,8" />
-                    <ItemsControl ItemsSource="{Binding Declarations}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:DeclarationItemViewModel">
-                                <Grid ColumnDefinitions="200,*,Auto" Margin="0,4">
-                                    <TextBlock Grid.Column="0"
-                                               Text="{Binding Name, StringFormat='${0}'}"
-                                               VerticalAlignment="Center"
-                                               FontFamily="monospace" />
-                                    <TextBox Grid.Column="1"
-                                             Text="{Binding Value, Mode=TwoWay}"
-                                             Margin="8,0" />
-                                    <Button Grid.Column="2"
-                                            Content="Remove"
-                                            Command="{Binding RemoveCommand}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <!-- Add declaration -->
-                    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
-                            BorderThickness="0,1,0,0"
-                            Padding="0,8,0,0"
-                            Margin="0,8,0,0">
-                        <Grid ColumnDefinitions="200,*,Auto">
-                            <TextBox Grid.Column="0"
-                                     Text="{Binding NewDeclName, Mode=TwoWay}"
-                                     Watermark="Name"
-                                     FontFamily="monospace" />
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding NewDeclValue, Mode=TwoWay}"
-                                     Watermark="Value"
-                                     Margin="8,0" />
-                            <Button Grid.Column="2"
-                                    Content="Add"
-                                    Command="{Binding AddDeclarationCommand}" />
-                        </Grid>
+                    <TextBlock Classes="section-title" Text="Declarations" />
+                    <Border Classes="card">
+                        <StackPanel Spacing="0">
+                            <ItemsControl ItemsSource="{Binding Declarations}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:DeclarationItemViewModel">
+                                        <Border Classes="card-item">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Border Grid.Column="0"
+                                                        Classes="badge"
+                                                        VerticalAlignment="Center"
+                                                        Margin="0,0,12,0">
+                                                    <TextBlock Text="{Binding Name, StringFormat='${0}'}"
+                                                               FontFamily="JetBrains Mono, Cascadia Code, monospace"
+                                                               FontSize="13"
+                                                               Foreground="#89b4fa" />
+                                                </Border>
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding Value, Mode=TwoWay}"
+                                                         Margin="0,0,10,0" />
+                                                <Button Grid.Column="2"
+                                                        Classes="danger"
+                                                        Content="Remove"
+                                                        Command="{Binding RemoveCommand}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Border Classes="separator" Margin="0,4" />
+
+                            <!-- Add declaration -->
+                            <Grid ColumnDefinitions="180,*,Auto" Margin="4,4,4,0">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding NewDeclName, Mode=TwoWay}"
+                                         Watermark="Variable name"
+                                         FontFamily="JetBrains Mono, Cascadia Code, monospace" />
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding NewDeclValue, Mode=TwoWay}"
+                                         Watermark="Value"
+                                         Margin="8,0" />
+                                <Button Grid.Column="2"
+                                        Classes="accent"
+                                        Content="Add"
+                                        Command="{Binding AddDeclarationCommand}" />
+                            </Grid>
+                        </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <!-- env = KEY,VALUE -->
+                <!-- Environment Variables -->
                 <StackPanel>
-                    <TextBlock Text="Environment Variables"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,8" />
-                    <ItemsControl ItemsSource="{Binding EnvironmentVariables}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:EnvItemViewModel">
-                                <Grid ColumnDefinitions="200,*,Auto" Margin="0,4">
-                                    <TextBox Grid.Column="0"
-                                             Text="{Binding Name, Mode=TwoWay}"
-                                             FontFamily="monospace" />
-                                    <TextBox Grid.Column="1"
-                                             Text="{Binding Value, Mode=TwoWay}"
-                                             Margin="8,0" />
-                                    <Button Grid.Column="2"
-                                            Content="Remove"
-                                            Command="{Binding RemoveCommand}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <!-- Add env -->
-                    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
-                            BorderThickness="0,1,0,0"
-                            Padding="0,8,0,0"
-                            Margin="0,8,0,0">
-                        <Grid ColumnDefinitions="200,*,Auto">
-                            <TextBox Grid.Column="0"
-                                     Text="{Binding NewEnvKey, Mode=TwoWay}"
-                                     Watermark="KEY"
-                                     FontFamily="monospace" />
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding NewEnvValue, Mode=TwoWay}"
-                                     Watermark="value"
-                                     Margin="8,0" />
-                            <Button Grid.Column="2"
-                                    Content="Add"
-                                    Command="{Binding AddEnvCommand}" />
-                        </Grid>
+                    <TextBlock Classes="section-title" Text="Environment Variables" />
+                    <Border Classes="card">
+                        <StackPanel Spacing="0">
+                            <ItemsControl ItemsSource="{Binding EnvironmentVariables}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:EnvItemViewModel">
+                                        <Border Classes="card-item">
+                                            <Grid ColumnDefinitions="180,*,Auto">
+                                                <TextBox Grid.Column="0"
+                                                         Text="{Binding Name, Mode=TwoWay}"
+                                                         FontFamily="JetBrains Mono, Cascadia Code, monospace" />
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding Value, Mode=TwoWay}"
+                                                         Margin="8,0,10,0" />
+                                                <Button Grid.Column="2"
+                                                        Classes="danger"
+                                                        Content="Remove"
+                                                        Command="{Binding RemoveCommand}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Border Classes="separator" Margin="0,4" />
+
+                            <!-- Add env -->
+                            <Grid ColumnDefinitions="180,*,Auto" Margin="4,4,4,0">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding NewEnvKey, Mode=TwoWay}"
+                                         Watermark="KEY"
+                                         FontFamily="JetBrains Mono, Cascadia Code, monospace" />
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding NewEnvValue, Mode=TwoWay}"
+                                         Watermark="value"
+                                         Margin="8,0" />
+                                <Button Grid.Column="2"
+                                        Classes="accent"
+                                        Content="Add"
+                                        Command="{Binding AddEnvCommand}" />
+                            </Grid>
+                        </StackPanel>
                     </Border>
                 </StackPanel>
 

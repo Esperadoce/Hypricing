@@ -1,10 +1,206 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Hypricing.Desktop.App"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             RequestedThemeVariant="Dark">
 
     <Application.Styles>
         <FluentTheme />
+
+        <!-- ═══════════════ Window ═══════════════ -->
+        <Style Selector="Window">
+            <Setter Property="Background" Value="#1e1e2e" />
+            <Setter Property="Foreground" Value="#cdd6f4" />
+            <Setter Property="FontFamily" Value="Inter, Segoe UI, sans-serif" />
+        </Style>
+
+        <!-- ═══════════════ Cards ═══════════════ -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#313244" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="BoxShadow" Value="0 2 8 0 #18000000" />
+        </Style>
+        <Style Selector="Border.card-elevated">
+            <Setter Property="Background" Value="#313244" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="BoxShadow" Value="0 4 16 0 #28000000" />
+        </Style>
+        <Style Selector="Border.card-item">
+            <Setter Property="Background" Value="#2a2a3c" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style Selector="Border.card-item:pointerover">
+            <Setter Property="Background" Value="#353548" />
+        </Style>
+
+        <!-- ═══════════════ TextBox ═══════════════ -->
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Background" Value="#45475a" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Foreground" Value="#cdd6f4" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                    <BrushTransition Property="Background" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#505069" />
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#89b4fa" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="#45475a" />
+        </Style>
+
+        <!-- ═══════════════ Accent Button ═══════════════ -->
+        <Style Selector="Button.accent">
+            <Setter Property="Background" Value="#89b4fa" />
+            <Setter Property="Foreground" Value="#1e1e2e" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="20,10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.accent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#b4d0fb" />
+        </Style>
+        <Style Selector="Button.accent:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#7ba3e8" />
+        </Style>
+
+        <!-- ═══════════════ Danger Button ═══════════════ -->
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#f38ba8" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#5e3045" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#3e2030" />
+            <Setter Property="BorderBrush" Value="#f38ba8" />
+        </Style>
+
+        <!-- ═══════════════ Ghost Button ═══════════════ -->
+        <Style Selector="Button.ghost">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#a6adc8" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#45475a" />
+            <Setter Property="Foreground" Value="#cdd6f4" />
+        </Style>
+
+        <!-- ═══════════════ Default Button ═══════════════ -->
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14,8" />
+        </Style>
+
+        <!-- ═══════════════ ComboBox ═══════════════ -->
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Background" Value="#45475a" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
+        <!-- ═══════════════ Sidebar ═══════════════ -->
+        <Style Selector="ListBox.sidebar">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="ListBox.sidebar ListBoxItem">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Margin" Value="8,2" />
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="Foreground" Value="#a6adc8" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="ListBox.sidebar ListBoxItem:selected">
+            <Setter Property="Foreground" Value="#cdd6f4" />
+        </Style>
+        <Style Selector="ListBox.sidebar ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#313244" />
+        </Style>
+        <Style Selector="ListBox.sidebar ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#252536" />
+        </Style>
+
+        <!-- ═══════════════ Badge ═══════════════ -->
+        <Style Selector="Border.badge">
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Background" Value="#1e1e2e" />
+        </Style>
+
+        <!-- ═══════════════ Typography ═══════════════ -->
+        <Style Selector="TextBlock.page-title">
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#cdd6f4" />
+            <Setter Property="Margin" Value="0,0,0,24" />
+        </Style>
+
+        <Style Selector="TextBlock.section-title">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#6c7086" />
+            <Setter Property="Margin" Value="4,16,0,8" />
+        </Style>
+
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Foreground" Value="#585b70" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <Style Selector="TextBlock.status">
+            <Setter Property="Foreground" Value="#a6adc8" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="TextBlock.mono">
+            <Setter Property="FontFamily" Value="JetBrains Mono, Cascadia Code, monospace" />
+        </Style>
+
+        <!-- ═══════════════ Separator ═══════════════ -->
+        <Style Selector="Border.separator">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="Background" Value="#45475a" />
+            <Setter Property="Margin" Value="0,8" />
+            <Setter Property="Opacity" Value="0.5" />
+        </Style>
+
+        <!-- ═══════════════ ScrollViewer ═══════════════ -->
+        <Style Selector="ScrollViewer">
+            <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+        </Style>
+
+        <!-- ═══════════════ Content transitions ═══════════════ -->
+        <Style Selector="ContentControl.page-host">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+                </Transitions>
+            </Setter>
+        </Style>
+
     </Application.Styles>
 </Application>

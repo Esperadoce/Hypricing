@@ -7,68 +7,81 @@
              x:Class="Hypricing.Desktop.Views.StartupView"
              x:DataType="vm:StartupViewModel">
 
-    <DockPanel Margin="16">
+    <DockPanel>
 
-        <!-- Header -->
         <TextBlock DockPanel.Dock="Top"
-                   Text="Startup"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Margin="0,0,0,16" />
+                   Classes="page-title"
+                   Text="Startup" />
 
-        <!-- Bottom bar: status + save -->
-        <Grid DockPanel.Dock="Bottom" Margin="0,16,0,0" ColumnDefinitions="*,Auto">
-            <TextBlock Grid.Column="0"
-                       Text="{Binding StatusMessage}"
-                       VerticalAlignment="Center"
-                       Foreground="Gray" />
-            <Button Grid.Column="1"
-                    Content="Save"
-                    Command="{Binding SaveCommand}" />
-        </Grid>
-
-        <!-- Add new entry -->
+        <!-- Bottom bar -->
         <Border DockPanel.Dock="Bottom"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
-                BorderThickness="0,1,0,0"
-                Padding="0,12,0,0"
-                Margin="0,8,0,0">
-            <Grid ColumnDefinitions="150,*,Auto">
-                <ComboBox Grid.Column="0"
-                          ItemsSource="{x:Static vm:ExecItemViewModel.AllVariants}"
-                          SelectedItem="{Binding NewVariant}"
-                          Margin="0,0,8,0" />
-                <TextBox Grid.Column="1"
-                         Text="{Binding NewCommand, Mode=TwoWay}"
-                         Watermark="Command to run..."
-                         Margin="0,0,8,0" />
-                <Button Grid.Column="2"
-                        Content="Add"
-                        Command="{Binding AddCommand}" />
+                Classes="card-elevated"
+                CornerRadius="12,12,0,0"
+                Padding="20,14"
+                Margin="0,16,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Classes="status"
+                           Text="{Binding StatusMessage}" />
+                <Button Grid.Column="1"
+                        Classes="accent"
+                        Content="Save"
+                        Command="{Binding SaveCommand}" />
             </Grid>
         </Border>
 
-        <!-- Exec entries list -->
         <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding ExecEntries}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:ExecItemViewModel">
-                        <Grid ColumnDefinitions="120,*,Auto" Margin="0,4">
-                            <TextBlock Grid.Column="0"
-                                       Text="{Binding VariantDisplay}"
-                                       VerticalAlignment="Center"
-                                       FontFamily="monospace"
-                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding Command, Mode=TwoWay}"
-                                     Margin="8,0" />
-                            <Button Grid.Column="2"
-                                    Content="Remove"
-                                    Command="{Binding RemoveCommand}" />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <StackPanel Spacing="16">
+
+                <!-- Add new entry -->
+                <Border Classes="card-elevated">
+                    <Grid ColumnDefinitions="140,*,Auto">
+                        <ComboBox Grid.Column="0"
+                                  ItemsSource="{x:Static vm:ExecItemViewModel.AllVariants}"
+                                  SelectedItem="{Binding NewVariant}"
+                                  Margin="0,0,8,0" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding NewCommand, Mode=TwoWay}"
+                                 Watermark="Command to run..."
+                                 Margin="0,0,8,0" />
+                        <Button Grid.Column="2"
+                                Classes="accent"
+                                Content="Add"
+                                Command="{Binding AddCommand}" />
+                    </Grid>
+                </Border>
+
+                <!-- Exec entries list -->
+                <Border Classes="card">
+                    <ItemsControl ItemsSource="{Binding ExecEntries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ExecItemViewModel">
+                                <Border Classes="card-item">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                        <Border Grid.Column="0"
+                                                Classes="badge"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,12,0">
+                                            <TextBlock Text="{Binding VariantDisplay}"
+                                                       FontFamily="JetBrains Mono, Cascadia Code, monospace"
+                                                       FontSize="12"
+                                                       Foreground="#a6e3a1" />
+                                        </Border>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding Command, Mode=TwoWay}"
+                                                 Margin="0,0,10,0" />
+                                        <Button Grid.Column="2"
+                                                Classes="danger"
+                                                Content="Remove"
+                                                Command="{Binding RemoveCommand}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+
+            </StackPanel>
         </ScrollViewer>
 
     </DockPanel>

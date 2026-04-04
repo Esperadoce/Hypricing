@@ -7,53 +7,57 @@
              x:Class="Hypricing.Desktop.Views.BackupView"
              x:DataType="vm:BackupViewModel">
 
-    <DockPanel Margin="16">
+    <DockPanel>
 
-        <!-- Header -->
         <TextBlock DockPanel.Dock="Top"
-                   Text="Backups"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Margin="0,0,0,16" />
+                   Classes="page-title"
+                   Text="Backups" />
 
-        <!-- Bottom bar: status + create -->
-        <Grid DockPanel.Dock="Bottom" Margin="0,16,0,0" ColumnDefinitions="*,Auto">
-            <TextBlock Grid.Column="0"
-                       Text="{Binding StatusMessage}"
-                       VerticalAlignment="Center"
-                       Foreground="Gray" />
-            <Button Grid.Column="1"
-                    Content="Create Backup"
-                    Command="{Binding CreateBackupCommand}" />
-        </Grid>
+        <!-- Bottom bar -->
+        <Border DockPanel.Dock="Bottom"
+                Classes="card-elevated"
+                CornerRadius="12,12,0,0"
+                Padding="20,14"
+                Margin="0,16,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Classes="status"
+                           Text="{Binding StatusMessage}" />
+                <Button Grid.Column="1"
+                        Classes="accent"
+                        Content="Create Backup"
+                        Command="{Binding CreateBackupCommand}" />
+            </Grid>
+        </Border>
 
         <!-- Backup list -->
         <ScrollViewer>
             <ItemsControl ItemsSource="{Binding Backups}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:BackupItemViewModel">
-                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
-                                BorderThickness="0,0,0,1"
-                                Padding="0,8"
-                                Margin="0,0,0,4">
+                        <Border Classes="card-item"
+                                Padding="16,12"
+                                Margin="0,0,0,8">
                             <Grid ColumnDefinitions="*,Auto,Auto">
-                                <StackPanel Grid.Column="0" Spacing="2">
+                                <StackPanel Grid.Column="0" Spacing="6">
                                     <TextBlock Text="{Binding Info.FileName}"
-                                               FontFamily="monospace" />
-                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <TextBlock Text="{Binding Info.CreatedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}"
-                                                   Foreground="Gray"
-                                                   FontSize="12" />
-                                        <TextBlock Text="{Binding Info.SizeDisplay}"
-                                                   Foreground="Gray"
-                                                   FontSize="12" />
+                                               FontFamily="JetBrains Mono, Cascadia Code, monospace"
+                                               FontSize="13"
+                                               Foreground="#cdd6f4" />
+                                    <StackPanel Orientation="Horizontal" Spacing="16">
+                                        <TextBlock Classes="muted"
+                                                   Text="{Binding Info.CreatedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" />
+                                        <TextBlock Classes="muted"
+                                                   Text="{Binding Info.SizeDisplay}" />
                                     </StackPanel>
                                 </StackPanel>
                                 <Button Grid.Column="1"
+                                        Classes="ghost"
                                         Content="Restore"
                                         Command="{Binding RestoreCommand}"
                                         Margin="0,0,8,0" />
                                 <Button Grid.Column="2"
+                                        Classes="danger"
                                         Content="Delete"
                                         Command="{Binding DeleteCommand}" />
                             </Grid>
