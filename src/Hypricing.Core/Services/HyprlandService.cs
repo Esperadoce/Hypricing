@@ -258,6 +258,64 @@ public class HyprlandService
         }
     }
 
+    /// <summary>
+    /// Returns the value of a key inside a section, or null if not found.
+    /// </summary>
+    public string? GetSectionValue(string sectionName, string? device, string key)
+    {
+        EnsureLoaded();
+        foreach (var loaded in _configs)
+        {
+            var section = loaded.Config.Children.OfType<SectionNode>()
+                .FirstOrDefault(s => s.Name == sectionName && s.Device == device);
+            var value = section?.Children.OfType<AssignmentNode>()
+                .FirstOrDefault(a => a.Key == key)?.Value;
+            if (value is not null)
+                return value;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Sets a key inside a section. Creates section/assignment if needed.
+    /// Pass null to remove the assignment.
+    /// </summary>
+    public void SetSectionValue(string sectionName, string? device, string key, string? value)
+    {
+        EnsureLoaded();
+
+        SectionNode? section = null;
+        foreach (var loaded in _configs)
+        {
+            section = loaded.Config.Children.OfType<SectionNode>()
+                .FirstOrDefault(s => s.Name == sectionName && s.Device == device);
+            if (section is not null)
+                break;
+        }
+
+        if (section is null)
+        {
+            if (value is null) return;
+            section = new SectionNode(sectionName, device);
+            _configs[0].Config.Children.Add(section);
+        }
+
+        var assignment = section.Children.OfType<AssignmentNode>()
+            .FirstOrDefault(a => a.Key == key);
+
+        if (value is null)
+        {
+            if (assignment is not null)
+                section.Children.Remove(assignment);
+            return;
+        }
+
+        if (assignment is not null)
+            assignment.Value = value;
+        else
+            section.Children.Add(new AssignmentNode(key, value));
+    }
+
     private IEnumerable<SyntaxNode> AllNodes()
     {
         foreach (var loaded in _configs)
