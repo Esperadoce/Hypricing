@@ -1,3 +1,5 @@
+# I need to rethink the app because the version 0.54 made the parser hyplang deprecaed
+
 # Hypricing
 
 A GUI settings manager for [Hyprland](https://hyprland.org). Provides a graphical interface over existing Linux tools and manages Hyprland configuration files directly.
